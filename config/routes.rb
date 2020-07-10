@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
 
-  # deviseのルーティングを変更
+  # deviseのルーティングを変更(コールバック関数の絡み
+  
   devise_for :users, controllers: {
   omniauth_callbacks: 'users/omniauth_callbacks',
   registrations: 'users/registrations'
