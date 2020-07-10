@@ -1,25 +1,33 @@
-def facebook
-  authorization
-end
+class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
-def google_oauth2
-  authorization
-end
-
-def failure
-  redirect_to root_path
-end
-
-private
-
-def authorization
-  @user = User.from_omniauth(request.env["omniauth.auth"])
-
-  if @user.persisted? 
-    #ユーザー情報が登録済みなので、新規登録ではなくログイン処理を行う
-    sign_in_and_redirect @user, event: :authentication
-  else 
-    #ユーザー情報が未登録なので、新規登録画面へ遷移する
-    render template: 'devise/registrations/new'
+  # callback for facebook
+  def facebook
+    # callback_for(:facebook)
+    # カリキュラムではピンポイントで関数を記載（どちらでもいいはず）
+    authorization
   end
+
+  # callback for google
+  def google_oauth2
+    # callback_for(:google)
+    # カリキュラムではピンポイントで関数を記載（どちらでもいいはず）
+    authorization
+  end
+
+  def authorization
+    sns_info = User.from_omniauth(request.env["omniauth.auth"])
+    @user = sns_info[:user]
+
+    if @user.persisted?
+      sign_in_and_redirect @user, event: :authentication #this will throw if @user is not activated
+    else
+      @sns_id = sns_info[:sns].id
+      render template: 'devise/registrations/new'
+    end
+  end
+
+  def failure
+    redirect_to root_path
+  end
+
 end
